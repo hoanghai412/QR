@@ -196,13 +196,15 @@ canvas.addEventListener('touchcancel', stopDragging);
 
 function update3DRotation() {
     if (sceneContainer) {
-        // GIẢM HỆ SỐ LÀM MỊN ĐỂ QUAY VỀ CHẬM HƠN
-        const easingFactor = 0.001; 
+        // TĂNG HỆ SỐ LÀM MỊN LÊN (ví dụ: 0.05) để nó có thể nhìn thấy được
+        const easingFactor = 0.05; 
         currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
         currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
 
-        if (Math.abs(currentSceneRotateX) < 0.01 && !isDragging) currentSceneRotateX = 0;
-        if (Math.abs(currentSceneRotateY) < 0.01 && !isDragging) currentSceneRotateY = 0;
+        // GIẢM NGƯỠNG LÀM TRÒN VỀ 0 (ví dụ: 0.0001)
+        const snapThreshold = 0.0001; 
+        if (Math.abs(currentSceneRotateX) < snapThreshold && !isDragging) currentSceneRotateX = 0;
+        if (Math.abs(currentSceneRotateY) < snapThreshold && !isDragging) currentSceneRotateY = 0;
 
 
         sceneContainer.style.transform = `rotateX(${currentSceneRotateX}deg) rotateY(${currentSceneRotateY}deg)`;
