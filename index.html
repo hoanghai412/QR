@@ -189,4 +189,109 @@ canvas.addEventListener('touchmove', (e) => {
     if (e.touches.length > 0) {
         moveDragging(e.touches[0].clientX, e.touches[0].clientY);
     }
-}, { passive: false
+}, { passive: false });
+
+canvas.addEventListener('touchend', stopDragging);
+canvas.addEventListener('touchcancel', stopDragging);
+
+function update3DRotation() {
+    if (sceneContainer) {
+        // GIẢM HỆ SỐ LÀM MỊN XUỐNG CÒN 0.02 ĐỂ CHẬM HƠN NỮA
+        const easingFactor = 0.02; 
+        currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
+        currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
+
+        // Giữ nguyên ngưỡng làm tròn về 0 để tránh jittering
+        const snapThreshold = 0.0001; 
+        if (Math.abs(currentSceneRotateX) < snapThreshold && !isDragging) currentSceneRotateX = 0;
+        if (Math.abs(currentSceneRotateY) < snapThreshold && !isDragging) currentSceneRotateY = 0;
+
+
+        sceneContainer.style.transform = `rotateX(${currentSceneRotateX}deg) rotateY(${currentSceneRotateY}deg)`;
+        
+        // console.log('Current Rotation:', currentSceneRotateX.toFixed(2), currentSceneRotateY.toFixed(2));
+    }
+    requestAnimationFrame(update3DRotation);
+}
+update3DRotation(); 
+
+function transformAndProject3D(originalX, originalY, originalZ) {
+    const radRotateX = currentSceneRotateX * Math.PI / 180;
+    const radRotateY = currentSceneRotateY * Math.PI / 180;
+
+    const sceneCenterX = W / 2;
+    const sceneCenterY = H / 2;
+
+    let pX = originalX - sceneCenterX;
+    let pY = originalY - sceneCenterY;
+    let pZ = originalZ;
+
+    let tempY = pY * Math.cos(radRotateX) - pZ * Math.sin(radRotateX);
+    let tempZ = pY * Math.sin(radRotateX) + pZ * Math.cos(radRotateX);
+    pY = tempY;
+    pZ = tempZ;
+
+    let tempX = pX * Math.cos(radRotateY) + pZ * Math.sin(radRotateY);
+    tempZ = -pX * Math.sin(radRotateY) + pZ * Math.cos(radRotateY);
+    pX = tempX;
+    pZ = tempZ;
+
+    if (FOCAL_LENGTH - pZ <= 0) {
+        return { px: -1000, py: -1000, scale: 0.001, finalZ: pZ };
+    }
+
+    const scale = FOCAL_LENGTH / (FOCAL_LENGTH - pZ);
+
+    const px = pX * scale + sceneCenterX;
+    const py = pY * scale + sceneCenterY;
+    
+    return { px, py, scale, finalZ: pZ };
+}
+
+function animate() {
+    ctx.clearRect(0, 0, W, H);
+
+    const allElements = [...hearts, ...texts].sort((a, b) => a.z - b.z);
+
+    for (let elem of allElements) {
+        elem.y += elem.speed;
+
+        const { px, py, scale, finalZ } = transformAndProject3D(elem.x, elem.y, elem.z);
+        elem.size = elem.baseSize * scale;
+
+        if (scale > 0.05 && finalZ < FOCAL_LENGTH) {
+            if (elem.img) {
+                if (elem.img.complete) {
+                    ctx.drawImage(elem.img, px - elem.size / 2, py - elem.size / 2, elem.size, elem.size);
+                }
+            } else { // Nếu là chữ
+                ctx.save();
+                ctx.translate(px, py);
+
+                ctx.rotate(elem.angle); // elem.angle giờ luôn là 0
+                
+                ctx.font = `bold ${elem.size}px sans-serif`;
+                const opacity = Math.min(1, Math.max(0.2, scale * 1.5));
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; 
+                ctx.textAlign = "center";
+                ctx.shadowColor = "#ff69b4";
+                ctx.shadowBlur = Math.min(15, 8 * scale);
+
+                ctx.fillText(elem.text, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        if (py > H + elem.size || py < -elem.size || px > W + elem.size || px < -elem.size || finalZ > FOCAL_LENGTH * 0.95 || finalZ < -FOCAL_LENGTH * 0.95) {
+            Object.assign(elem, elem.img ? randomHeart() : randomText());
+            elem.y = -elem.baseSize - Math.random() * H * 0.5; 
+            elem.x = Math.random() * W;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
