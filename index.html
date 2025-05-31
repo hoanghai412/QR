@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Heart💖</title>
+    <title>Falling Hearts & Love Words</title>
     <style>
         html, body {
             margin: 0; padding: 0;
@@ -129,7 +129,7 @@ function randomText() {
         baseSize: baseSize,
         size: baseSize,
         speed: 1.5 + Math.random() * 2.5,
-        angle: 0, // <--- THAY ĐỔI QUAN TRỌNG: LUÔN LUÔN KHÔNG XOAY BAN ĐẦU
+        angle: 0, 
         z: z 
     };
 }
@@ -196,11 +196,11 @@ canvas.addEventListener('touchcancel', stopDragging);
 
 function update3DRotation() {
     if (sceneContainer) {
-        const easingFactor = 0.15; 
+        // GIẢM HỆ SỐ LÀM MỊN ĐỂ QUAY VỀ CHẬM HƠN
+        const easingFactor = 0.08; 
         currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
         currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
 
-        // Làm tròn các giá trị rotation khi chúng rất gần 0 để tránh jittering
         if (Math.abs(currentSceneRotateX) < 0.01 && !isDragging) currentSceneRotateX = 0;
         if (Math.abs(currentSceneRotateY) < 0.01 && !isDragging) currentSceneRotateY = 0;
 
@@ -266,10 +266,8 @@ function animate() {
                 ctx.save();
                 ctx.translate(px, py);
 
-                // --- KHÔNG XOAY CHỮ THEO CẢNH, CHỈ DÙNG GÓC XOAY BAN ĐẦU (giờ là 0) ---
                 ctx.rotate(elem.angle); // elem.angle giờ luôn là 0
-                // -------------------------------------------------------------------
-
+                
                 ctx.font = `bold ${elem.size}px sans-serif`;
                 const opacity = Math.min(1, Math.max(0.2, scale * 1.5));
                 ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; 
