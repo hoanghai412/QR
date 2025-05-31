@@ -115,7 +115,7 @@ function randomHeart() {
 }
 function fillHearts() {
     hearts.length = 0;
-    const numHearts = Math.floor(W / 20);
+    const numHearts = Math.floor(W / 10);
     for (let i = 0; i < numHearts; i++) { hearts.push(randomHeart()); }
 }
 
@@ -136,7 +136,7 @@ function randomText() {
 }
 function fillTexts() {
     texts.length = 0;
-    const numTexts = Math.floor(W / 60);
+    const numTexts = Math.floor(W / 50);
     for (let i = 0; i < numTexts; i++) { texts.push(randomText()); }
 }
 
