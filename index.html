@@ -147,7 +147,7 @@ resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 // --- LOẠI BỎ TẤT CẢ CÁC HÀM VÀ LISTENER XỬ LÝ KÉO/XOAY ---
-/*
+
 function startDragging(clientX, clientY) {
     isDragging = true;
     lastInputX = clientX;
@@ -196,10 +196,10 @@ canvas.addEventListener('touchmove', (e) => {
 
 canvas.addEventListener('touchend', stopDragging);
 canvas.addEventListener('touchcancel', stopDragging);
-*/
+
 
 // --- LOẠI BỎ HÀM CẬP NHẬT XOAY 3D VÀ GỌI NÓ ---
-/*
+
 function update3DRotation() {
     if (sceneContainer) {
         currentSceneRotateX += (targetRotateX - currentSceneRotateX) * 0.1;
@@ -210,7 +210,7 @@ function update3DRotation() {
     requestAnimationFrame(update3DRotation);
 }
 update3DRotation();
-*/
+
 
 // Hàm chuyển đổi tọa độ 3D và chiếu về 2D (chỉ còn chiếu phối cảnh theo Z)
 // Vì không xoay, currentSceneRotateX và currentSceneRotateY sẽ luôn là 0
@@ -226,7 +226,7 @@ function transformAndProject3D(originalX, originalY, originalZ) {
     let pZ = originalZ;
 
     // --- LOẠI BỎ PHÉP XOAY TRONG HÀM NÀY ---
-    /*
+    
     let tempY = pY * Math.cos(radRotateX) - pZ * Math.sin(radRotateX);
     let tempZ = pY * Math.sin(radRotateX) + pZ * Math.cos(radRotateX);
     pY = tempY;
@@ -236,7 +236,7 @@ function transformAndProject3D(originalX, originalY, originalZ) {
     tempZ = -pX * Math.sin(radRotateY) + pZ * Math.cos(radRotateY);
     pX = tempX;
     pZ = tempZ;
-    */
+    
 
     if (FOCAL_LENGTH - pZ <= 0) {
         return { px: -1000, py: -1000, scale: 0.001, finalZ: pZ };
@@ -273,12 +273,12 @@ function animate() {
                 // --- CHỈ SỬ DỤNG GÓC XOAY NGẪU NHIÊN BAN ĐẦU CỦA CHỮ ---
                 ctx.rotate(elem.angle); 
                 // --- LOẠI BỎ CÁC TÍNH TOÁN GÓC XOAY ĐỘNG DỰA TRÊN XOAY CẢNH ---
-                /*
+                
                 const textRelativeToCenterX = elem.x - (W / 2); 
                 const textRotationInfluenceFactor = 0.005; 
                 const dynamicAngleX = textRelativeToCenterX * textRotationInfluenceFactor * (currentSceneRotateY * Math.PI / 180);
                 ctx.rotate(elem.angle + dynamicAngleX);
-                */
+                
                 // -------------------------------------------------------------------
 
                 ctx.font = `bold ${elem.size}px sans-serif`;
