@@ -17,7 +17,7 @@
             -moz-user-select: none;
             -ms-user-select: none;
             /* Loại bỏ perspective nếu không cần hiệu ứng xoay 3D trên container */
-            /* perspective: 1000px; */ 
+             perspective: 1000px;  
         }
         canvas { display: block; }
 
@@ -27,10 +27,10 @@
             position: absolute;
             top: 0; left: 0;
             /* Loại bỏ transform-style và transform vì không còn xoay container */
-            /* transform-style: preserve-3d; */ 
-            /* transform: rotateX(0deg) rotateY(0deg); */
-            /* transition: transform 0.1s ease-out; */
-            /* transform-origin: center center; */ 
+             transform-style: preserve-3d; 
+             transform: rotateX(0deg) rotateY(0deg); 
+             transition: transform 0.1s ease-out; 
+             transform-origin: center center; 
         }
     </style>
 </head>
@@ -71,12 +71,12 @@ const sceneContainer = document.getElementById('scene-container');
 let W = window.innerWidth, H = window.innerHeight;
 
 // --- LOẠI BỎ CÁC BIẾN LIÊN QUAN ĐẾN XOAY ---
-// let currentSceneRotateX = 0; 
-// let currentSceneRotateY = 0; 
-// let targetRotateX = 0;       
-// let targetRotateY = 0;       
-// let lastInputX = 0, lastInputY = 0;
-// let isDragging = false;
+ let currentSceneRotateX = 0; 
+ let currentSceneRotateY = 0; 
+ let targetRotateX = 0;       
+let targetRotateY = 0;       
+ let lastInputX = 0, lastInputY = 0;
+ let isDragging = false;
 
 const FOCAL_LENGTH = 600; // Tiêu cự cho chiếu phối cảnh 3D (giữ lại nếu muốn chiều sâu)
 
@@ -215,8 +215,8 @@ update3DRotation();
 // Hàm chuyển đổi tọa độ 3D và chiếu về 2D (chỉ còn chiếu phối cảnh theo Z)
 // Vì không xoay, currentSceneRotateX và currentSceneRotateY sẽ luôn là 0
 function transformAndProject3D(originalX, originalY, originalZ) {
-    // const radRotateX = currentSceneRotateX * Math.PI / 180; // Sẽ là 0
-    // const radRotateY = currentSceneRotateY * Math.PI / 180; // Sẽ là 0
+     const radRotateX = currentSceneRotateX * Math.PI / 180; // Sẽ là 0
+     const radRotateY = currentSceneRotateY * Math.PI / 180; // Sẽ là 0
 
     const sceneCenterX = W / 2;
     const sceneCenterY = H / 2;
