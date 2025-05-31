@@ -129,7 +129,7 @@ function randomText() {
         baseSize: baseSize,
         size: baseSize,
         speed: 1.5 + Math.random() * 2.5,
-        angle: (Math.random() - 0.5) * 0.3, // Góc xoay 2D ngẫu nhiên ban đầu
+        angle: 0, // <--- THAY ĐỔI QUAN TRỌNG: LUÔN LUÔN KHÔNG XOAY BAN ĐẦU
         z: z 
     };
 }
@@ -163,9 +163,9 @@ function moveDragging(clientX, clientY) {
 
 function stopDragging() {
     isDragging = false;
-    targetRotateX = 0; // Đặt mục tiêu xoay X về 0
-    targetRotateY = 0; // Đặt mục tiêu xoay Y về 0
-    console.log('--- Drag stopped --- Target X:', targetRotateX, 'Target Y:', targetRotateY); // DEBUG
+    targetRotateX = 0; 
+    targetRotateY = 0; 
+    console.log('--- Drag stopped --- Target X:', targetRotateX, 'Target Y:', targetRotateY);
 }
 
 canvas.addEventListener('mousedown', (e) => {
@@ -196,14 +196,17 @@ canvas.addEventListener('touchcancel', stopDragging);
 
 function update3DRotation() {
     if (sceneContainer) {
-        // TĂNG HỆ SỐ LÀM MỊN ĐỂ QUAY VỀ NHANH HƠN (ví dụ: từ 0.1 lên 0.15 hoặc 0.2)
         const easingFactor = 0.15; 
         currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
         currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
 
+        // Làm tròn các giá trị rotation khi chúng rất gần 0 để tránh jittering
+        if (Math.abs(currentSceneRotateX) < 0.01 && !isDragging) currentSceneRotateX = 0;
+        if (Math.abs(currentSceneRotateY) < 0.01 && !isDragging) currentSceneRotateY = 0;
+
+
         sceneContainer.style.transform = `rotateX(${currentSceneRotateX}deg) rotateY(${currentSceneRotateY}deg)`;
         
-        // DEBUG: Xem giá trị có thay đổi không
         // console.log('Current Rotation:', currentSceneRotateX.toFixed(2), currentSceneRotateY.toFixed(2));
     }
     requestAnimationFrame(update3DRotation);
@@ -221,7 +224,6 @@ function transformAndProject3D(originalX, originalY, originalZ) {
     let pY = originalY - sceneCenterY;
     let pZ = originalZ;
 
-    // Các phép xoay 3D (giữ lại để cảnh tổng thể xoay)
     let tempY = pY * Math.cos(radRotateX) - pZ * Math.sin(radRotateX);
     let tempZ = pY * Math.sin(radRotateX) + pZ * Math.cos(radRotateX);
     pY = tempY;
@@ -264,9 +266,9 @@ function animate() {
                 ctx.save();
                 ctx.translate(px, py);
 
-                // --- KHÔNG XOAY CHỮ THEO CẢNH, CHỈ DÙNG GÓC XOAY BAN ĐẦU ---
-                ctx.rotate(elem.angle); 
-                // --------------------------------------------------------
+                // --- KHÔNG XOAY CHỮ THEO CẢNH, CHỈ DÙNG GÓC XOAY BAN ĐẦU (giờ là 0) ---
+                ctx.rotate(elem.angle); // elem.angle giờ luôn là 0
+                // -------------------------------------------------------------------
 
                 ctx.font = `bold ${elem.size}px sans-serif`;
                 const opacity = Math.min(1, Math.max(0.2, scale * 1.5));
