@@ -15,7 +15,6 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            /* Đưa lại perspective để có hiệu ứng 3D */
             perspective: 1000px; 
         }
         canvas { display: block; }
@@ -25,10 +24,9 @@
             height: 100%;
             position: absolute;
             top: 0; left: 0;
-            /* Đưa lại các thuộc tính 3D cho container */
             transform-style: preserve-3d; 
-            transform: rotateX(0deg) rotateY(0deg); /* Giá trị ban đầu */
-            transition: transform 0.1s ease-out; /* Chuyển động mượt mà */
+            transform: rotateX(0deg) rotateY(0deg); 
+            transition: transform 0.1s ease-out; 
             transform-origin: center center; 
         }
     </style>
@@ -69,15 +67,14 @@ const sceneContainer = document.getElementById('scene-container');
 
 let W = window.innerWidth, H = window.innerHeight;
 
-// --- ĐƯA LẠI CÁC BIẾN LIÊN QUAN ĐẾN XOAY ---
-let currentSceneRotateX = 0; // Góc xoay X hiện tại của toàn cảnh
-let currentSceneRotateY = 0; // Góc xoay Y hiện tại của toàn cảnh
-let targetRotateX = 0;       // Góc xoay X mục tiêu từ input người dùng
-let targetRotateY = 0;       // Góc xoay Y mục tiêu từ input người dùng
+let currentSceneRotateX = 0; 
+let currentSceneRotateY = 0; 
+let targetRotateX = 0;       
+let targetRotateY = 0;       
 let lastInputX = 0, lastInputY = 0;
 let isDragging = false;
 
-const FOCAL_LENGTH = 600; // Tiêu cự cho chiếu phối cảnh 3D
+const FOCAL_LENGTH = 600; 
 
 function resizeCanvas() {
     W = window.innerWidth;
@@ -132,7 +129,7 @@ function randomText() {
         baseSize: baseSize,
         size: baseSize,
         speed: 1.5 + Math.random() * 2.5,
-        angle: (Math.random() - 0.5) * 0.3, 
+        angle: (Math.random() - 0.5) * 0.3, // Góc xoay 2D ngẫu nhiên ban đầu
         z: z 
     };
 }
@@ -145,7 +142,6 @@ function fillTexts() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// --- ĐƯA LẠI CÁC HÀM XỬ LÝ KÉO/XOAY ---
 function startDragging(clientX, clientY) {
     isDragging = true;
     lastInputX = clientX;
@@ -165,14 +161,13 @@ function moveDragging(clientX, clientY) {
     lastInputY = clientY;
 }
 
-// --- THAY ĐỔI QUAN TRỌNG: ĐẶT LẠI MỤC TIÊU XOAY VỀ 0 KHI KẾT THÚC KÉO ---
 function stopDragging() {
     isDragging = false;
     targetRotateX = 0; // Đặt mục tiêu xoay X về 0
     targetRotateY = 0; // Đặt mục tiêu xoay Y về 0
+    console.log('--- Drag stopped --- Target X:', targetRotateX, 'Target Y:', targetRotateY); // DEBUG
 }
 
-// --- ĐƯA LẠI CÁC EVENT LISTENER ---
 canvas.addEventListener('mousedown', (e) => {
     startDragging(e.clientX, e.clientY);
 });
@@ -180,7 +175,7 @@ canvas.addEventListener('mousemove', (e) => {
     moveDragging(e.clientX, e.clientY);
 });
 canvas.addEventListener('mouseup', stopDragging);
-canvas.addEventListener('mouseleave', stopDragging); // Quan trọng để dừng xoay khi chuột rời khỏi canvas
+canvas.addEventListener('mouseleave', stopDragging); 
 
 canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -199,20 +194,22 @@ canvas.addEventListener('touchmove', (e) => {
 canvas.addEventListener('touchend', stopDragging);
 canvas.addEventListener('touchcancel', stopDragging);
 
-// --- ĐƯA LẠI HÀM CẬP NHẬT XOAY 3D VÀ GỌI NÓ ---
 function update3DRotation() {
     if (sceneContainer) {
-        // Cơ chế làm mịn (easing) chuyển động xoay
-        currentSceneRotateX += (targetRotateX - currentSceneRotateX) * 0.1;
-        currentSceneRotateY += (targetRotateY - currentSceneRotateY) * 0.1;
+        // TĂNG HỆ SỐ LÀM MỊN ĐỂ QUAY VỀ NHANH HƠN (ví dụ: từ 0.1 lên 0.15 hoặc 0.2)
+        const easingFactor = 0.15; 
+        currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
+        currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
 
         sceneContainer.style.transform = `rotateX(${currentSceneRotateX}deg) rotateY(${currentSceneRotateY}deg)`;
+        
+        // DEBUG: Xem giá trị có thay đổi không
+        // console.log('Current Rotation:', currentSceneRotateX.toFixed(2), currentSceneRotateY.toFixed(2));
     }
     requestAnimationFrame(update3DRotation);
 }
-update3DRotation(); // Bắt đầu vòng lặp xoay
+update3DRotation(); 
 
-// Hàm chuyển đổi tọa độ 3D và chiếu về 2D sau khi áp dụng xoay cảnh
 function transformAndProject3D(originalX, originalY, originalZ) {
     const radRotateX = currentSceneRotateX * Math.PI / 180;
     const radRotateY = currentSceneRotateY * Math.PI / 180;
@@ -224,7 +221,7 @@ function transformAndProject3D(originalX, originalY, originalZ) {
     let pY = originalY - sceneCenterY;
     let pZ = originalZ;
 
-    // --- ĐƯA LẠI PHÉP XOAY TRONG HÀM NÀY ---
+    // Các phép xoay 3D (giữ lại để cảnh tổng thể xoay)
     let tempY = pY * Math.cos(radRotateX) - pZ * Math.sin(radRotateX);
     let tempZ = pY * Math.sin(radRotateX) + pZ * Math.cos(radRotateX);
     pY = tempY;
@@ -234,7 +231,6 @@ function transformAndProject3D(originalX, originalY, originalZ) {
     tempZ = -pX * Math.sin(radRotateY) + pZ * Math.cos(radRotateY);
     pX = tempX;
     pZ = tempZ;
-    // ------------------------------------------
 
     if (FOCAL_LENGTH - pZ <= 0) {
         return { px: -1000, py: -1000, scale: 0.001, finalZ: pZ };
@@ -268,12 +264,9 @@ function animate() {
                 ctx.save();
                 ctx.translate(px, py);
 
-                // --- ĐƯA LẠI GÓC XOAY ĐỘNG CHO CHỮ ---
-                const textRelativeToCenterX = elem.x - (W / 2); 
-                const textRotationInfluenceFactor = 0.005; 
-                const dynamicAngleX = textRelativeToCenterX * textRotationInfluenceFactor * (currentSceneRotateY * Math.PI / 180);
-                ctx.rotate(elem.angle + dynamicAngleX);
-                // ------------------------------------
+                // --- KHÔNG XOAY CHỮ THEO CẢNH, CHỈ DÙNG GÓC XOAY BAN ĐẦU ---
+                ctx.rotate(elem.angle); 
+                // --------------------------------------------------------
 
                 ctx.font = `bold ${elem.size}px sans-serif`;
                 const opacity = Math.min(1, Math.max(0.2, scale * 1.5));
