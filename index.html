@@ -197,7 +197,7 @@ canvas.addEventListener('touchcancel', stopDragging);
 function update3DRotation() {
     if (sceneContainer) {
         // GIẢM HỆ SỐ LÀM MỊN ĐỂ QUAY VỀ CHẬM HƠN
-        const easingFactor = 0.01; 
+        const easingFactor = 0.001; 
         currentSceneRotateX += (targetRotateX - currentSceneRotateX) * easingFactor;
         currentSceneRotateY += (targetRotateY - currentSceneRotateY) * easingFactor;
 
