@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Hearts & Love Words</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            background: #000;
+            /* Giữ touch-action và user-select để tránh các vấn đề mặc định của trình duyệt */
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            /* Loại bỏ perspective nếu không cần hiệu ứng xoay 3D trên container */
+            /* perspective: 1000px; */ 
+        }
+        canvas { display: block; }
+
+        #scene-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            /* Loại bỏ transform-style và transform vì không còn xoay container */
+            /* transform-style: preserve-3d; */ 
+            /* transform: rotateX(0deg) rotateY(0deg); */
+            /* transition: transform 0.1s ease-out; */
+            /* transform-origin: center center; */ 
+        }
+    </style>
+</head>
+<body>
+
+<div id="scene-container">
+    <canvas id="c"></canvas>
+</div>
+
+<script>
+const loveWords = [
+    "Anh thương em nhiều lắm 💖",
+    "Chỉ cần là em, anh chấp nhận tất cả.",
+    "Em là điều ngọt ngào nhất trong cuộc đời anh.",
+    "Mỗi ngày có em là mỗi ngày hạnh phúc.",
+    "Anh chỉ muốn nắm tay em đi hết cuộc đời này.",
+    "Gặp được em là điều may mắn nhất đời anh.",
+    "Anh muốn ở bên em, mãi mãi không rời.",
+    "Chỉ cần em cười, cả thế giới của anh sáng lên.",
+    "Em có biết anh nhớ em đến nhường nào không?",
+    "Em là giấc mơ đẹp nhất của anh.",
+    "Dù thế nào đi nữa, anh vẫn luôn ở đây vì em.",
+    "Yêu em là điều tuyệt vời nhất anh từng làm.",
+    "Anh hứa sẽ luôn bên em, bảo vệ và yêu em.",
+    "Tim anh đã lỡ nhịp kể từ ngày gặp em.",
+    "Thế giới này đẹp hơn vì có em.",
+    "Anh yêu em hơn cả ngôn từ có thể diễn tả.",
+    "Chỉ cần là em, mọi điều đều trở nên đáng giá.",
+    "Không ai thay thế được vị trí của em trong tim anh.",
+    "Cảm ơn em vì đã đến và làm anh hạnh phúc.",
+    "Anh không cần gì cả, chỉ cần có em là đủ."
+];
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const sceneContainer = document.getElementById('scene-container'); 
+
+let W = window.innerWidth, H = window.innerHeight;
+
+// --- LOẠI BỎ CÁC BIẾN LIÊN QUAN ĐẾN XOAY ---
+// let currentSceneRotateX = 0; 
+// let currentSceneRotateY = 0; 
+// let targetRotateX = 0;       
+// let targetRotateY = 0;       
+// let lastInputX = 0, lastInputY = 0;
+// let isDragging = false;
+
+const FOCAL_LENGTH = 600; // Tiêu cự cho chiếu phối cảnh 3D (giữ lại nếu muốn chiều sâu)
+
+function resizeCanvas() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+    fillHearts();
+    fillTexts();
+}
+
+const heartImagePaths = [
+    'img/heart (1).png', 'img/heart (2).png', 'img/heart (3).png', 'img/heart.png',
+    'img/hearts.png', 'img/like.png', 'img/love (1).png', 'img/love.png'
+];
+const loadedHeartImages = [];
+heartImagePaths.forEach(path => {
+    const img = new Image();
+    img.src = path;
+    img.onerror = () => { console.error(`Không thể tải ảnh: ${path}`); };
+    loadedHeartImages.push(img);
+});
+
+const hearts = [];
+function randomHeart() {
+    const randomImg = loadedHeartImages[Math.floor(Math.random() * loadedHeartImages.length)]; 
+    const baseSize = 18 + Math.random() * 18;
+    const z = Math.random() * FOCAL_LENGTH - FOCAL_LENGTH / 2; // Giữ lại Z để có chiều sâu
+    return {
+        x: Math.random() * W,
+        y: -30 - Math.random() * H,
+        baseSize: baseSize,
+        size: baseSize,
+        speed: 1.5 + Math.random() * 2.5,
+        img: randomImg,
+        z: z 
+    };
+}
+function fillHearts() {
+    hearts.length = 0;
+    const numHearts = Math.floor(W / 10);
+    for (let i = 0; i < numHearts; i++) { hearts.push(randomHeart()); }
+}
+
+const texts = [];
+function randomText() {
+    const baseSize = 18 + Math.random() * 18;
+    const z = Math.random() * FOCAL_LENGTH - FOCAL_LENGTH / 2; // Giữ lại Z để có chiều sâu
+    return {
+        text: loveWords[Math.floor(Math.random() * loveWords.length)],
+        x: Math.random() * W,
+        y: -30 - Math.random() * H,
+        baseSize: baseSize,
+        size: baseSize,
+        speed: 1.5 + Math.random() * 2.5,
+        angle: (Math.random() - 0.5) * 0.3, 
+        z: z 
+    };
+}
+function fillTexts() {
+    texts.length = 0;
+    const numTexts = Math.floor(W / 75);
+    for (let i = 0; i < numTexts; i++) { texts.push(randomText()); }
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// --- LOẠI BỎ TẤT CẢ CÁC HÀM VÀ LISTENER XỬ LÝ KÉO/XOAY ---
+/*
+function startDragging(clientX, clientY) {
+    isDragging = true;
+    lastInputX = clientX;
+    lastInputY = clientY;
+}
+
+function moveDragging(clientX, clientY) {
+    if (!isDragging) return;
+    const sensitivity = 0.2;
+    const deltaX = (clientX - lastInputX) * sensitivity;
+    const deltaY = (clientY - lastInputY) * sensitivity;
+
+    targetRotateY += deltaX;
+    targetRotateX -= deltaY;
+
+    lastInputX = clientX;
+    lastInputY = clientY;
+}
+
+function stopDragging() {
+    isDragging = false;
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    startDragging(e.clientX, e.clientY);
+});
+canvas.addEventListener('mousemove', (e) => {
+    moveDragging(e.clientX, e.clientY);
+});
+canvas.addEventListener('mouseup', stopDragging);
+canvas.addEventListener('mouseleave', stopDragging);
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        startDragging(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        moveDragging(e.touches[0].clientX, e.touches[0].clientY);
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', stopDragging);
+canvas.addEventListener('touchcancel', stopDragging);
+*/
+
+// --- LOẠI BỎ HÀM CẬP NHẬT XOAY 3D VÀ GỌI NÓ ---
+/*
+function update3DRotation() {
+    if (sceneContainer) {
+        currentSceneRotateX += (targetRotateX - currentSceneRotateX) * 0.1;
+        currentSceneRotateY += (targetRotateY - currentSceneRotateY) * 0.1;
+
+        sceneContainer.style.transform = `rotateX(${currentSceneRotateX}deg) rotateY(${currentSceneRotateY}deg)`;
+    }
+    requestAnimationFrame(update3DRotation);
+}
+update3DRotation();
+*/
+
+// Hàm chuyển đổi tọa độ 3D và chiếu về 2D (chỉ còn chiếu phối cảnh theo Z)
+// Vì không xoay, currentSceneRotateX và currentSceneRotateY sẽ luôn là 0
+function transformAndProject3D(originalX, originalY, originalZ) {
+    // const radRotateX = currentSceneRotateX * Math.PI / 180; // Sẽ là 0
+    // const radRotateY = currentSceneRotateY * Math.PI / 180; // Sẽ là 0
+
+    const sceneCenterX = W / 2;
+    const sceneCenterY = H / 2;
+
+    let pX = originalX - sceneCenterX;
+    let pY = originalY - sceneCenterY;
+    let pZ = originalZ;
+
+    // --- LOẠI BỎ PHÉP XOAY TRONG HÀM NÀY ---
+    /*
+    let tempY = pY * Math.cos(radRotateX) - pZ * Math.sin(radRotateX);
+    let tempZ = pY * Math.sin(radRotateX) + pZ * Math.cos(radRotateX);
+    pY = tempY;
+    pZ = tempZ;
+
+    let tempX = pX * Math.cos(radRotateY) + pZ * Math.sin(radRotateY);
+    tempZ = -pX * Math.sin(radRotateY) + pZ * Math.cos(radRotateY);
+    pX = tempX;
+    pZ = tempZ;
+    */
+
+    if (FOCAL_LENGTH - pZ <= 0) {
+        return { px: -1000, py: -1000, scale: 0.001, finalZ: pZ };
+    }
+
+    const scale = FOCAL_LENGTH / (FOCAL_LENGTH - pZ);
+
+    const px = pX * scale + sceneCenterX;
+    const py = pY * scale + sceneCenterY;
+    
+    return { px, py, scale, finalZ: pZ };
+}
+
+function animate() {
+    ctx.clearRect(0, 0, W, H);
+
+    const allElements = [...hearts, ...texts].sort((a, b) => a.z - b.z);
+
+    for (let elem of allElements) {
+        elem.y += elem.speed;
+
+        const { px, py, scale, finalZ } = transformAndProject3D(elem.x, elem.y, elem.z);
+        elem.size = elem.baseSize * scale;
+
+        if (scale > 0.05 && finalZ < FOCAL_LENGTH) {
+            if (elem.img) {
+                if (elem.img.complete) {
+                    ctx.drawImage(elem.img, px - elem.size / 2, py - elem.size / 2, elem.size, elem.size);
+                }
+            } else { // Nếu là chữ
+                ctx.save();
+                ctx.translate(px, py);
+
+                // --- CHỈ SỬ DỤNG GÓC XOAY NGẪU NHIÊN BAN ĐẦU CỦA CHỮ ---
+                ctx.rotate(elem.angle); 
+                // --- LOẠI BỎ CÁC TÍNH TOÁN GÓC XOAY ĐỘNG DỰA TRÊN XOAY CẢNH ---
+                /*
+                const textRelativeToCenterX = elem.x - (W / 2); 
+                const textRotationInfluenceFactor = 0.005; 
+                const dynamicAngleX = textRelativeToCenterX * textRotationInfluenceFactor * (currentSceneRotateY * Math.PI / 180);
+                ctx.rotate(elem.angle + dynamicAngleX);
+                */
+                // -------------------------------------------------------------------
+
+                ctx.font = `bold ${elem.size}px sans-serif`;
+                const opacity = Math.min(1, Math.max(0.2, scale * 1.5));
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`; 
+                ctx.textAlign = "center";
+                ctx.shadowColor = "#ff69b4";
+                ctx.shadowBlur = Math.min(15, 8 * scale);
+
+                ctx.fillText(elem.text, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        if (py > H + elem.size || py < -elem.size || px > W + elem.size || px < -elem.size || finalZ > FOCAL_LENGTH * 0.95 || finalZ < -FOCAL_LENGTH * 0.95) {
+            Object.assign(elem, elem.img ? randomHeart() : randomText());
+            elem.y = -elem.baseSize - Math.random() * H * 0.5; 
+            elem.x = Math.random() * W;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Ngăn cuộn trang */
+    height: 100vh;
+    font-family: "Parisienne", cursive;
+    perspective: 1000px; /* Tạo phối cảnh 3D */
+    background: radial-gradient(circle at center, #200236, #000000 80%); /* Nền đen */
+    user-select: none; /* Ngăn chọn văn bản */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: none; /* Ngăn cuộn/zoom mặc định trên cảm ứng */
+}
+
+#scene {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d; /* Giữ các phần tử con trong không gian 3D */
+    transition: transform 0.15s ease-out; /* Hiệu ứng chuyển động mượt mà */
+    /* Nền cho scene để các phần tử hiện rõ */
+    background: transparent; 
+}
+
+.falling-text {
+    position: absolute;
+    /* Kích thước font sẽ được đặt qua JS để responsive */
+    white-space: nowrap;
+    pointer-events: none; /* Không tương tác với chuột/chạm */
+    opacity: 0; /* Bắt đầu ẩn, sẽ fade in */
+    transform-style: preserve-3d;
+    animation: fadeInOut 2s forwards, fallAndFade 8s linear infinite; /* Hai animation: fade in/out và rơi/fade */
+    font-weight: bold;
+    color: #fff;
+    text-shadow:
+        0 0 5px #ff69b4, /* Hot Pink */
+        0 0 10px #ff69b4,
+        0 0 15px #ff69b4,
+        0 0 20px #ff69b4,
+        0 0 25px #ff69b4;
+}
+
+.falling-heart {
+    position: absolute;
+    width: 0px; /* Kích thước sẽ được đặt qua JS */
+    height: 0px; /* Kích thước sẽ được đặt qua JS */
+    pointer-events: none;
+    opacity: 0; /* Bắt đầu ẩn, sẽ fade in */
+    transform-style: preserve-3d;
+    animation: fadeInOut 2s forwards, fallAndFade 8s linear infinite; /* Hai animation */
+}
+
+.falling-heart img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-50px) scale(0.5) rotateX(90deg); }
+    10% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); }
+    90% { opacity: 1; transform: translateY(0) scale(1) rotateX(0deg); }
+    100% { opacity: 0; transform: translateY(50px) scale(0.5) rotateX(-90deg); }
+}
+
+@keyframes fallAndFade {
+    from { top: -10%; opacity: 0; } /* Bắt đầu từ trên cao */
+    10% { opacity: 1; } /* Hiện rõ sau khi xuất hiện */
+    90% { opacity: 1; } /* Giữ độ rõ */
+    to { top: 110%; opacity: 0; } /* Rơi xuống dưới và biến mất */
+}
